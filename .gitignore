@@ -172,3 +172,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+/.vs/SQL_Tools/CopilotIndices/17.13.444.19527
+/.vs/SQL_Tools/FileContentIndex
+*.wsuo
+*.json
+*.sqlite
