@@ -24,12 +24,12 @@ poetry install
 
 From the terminal:
 
+Print:
+poetry run printreqs <path_to_folder>
+
+Write:
 poetry run genreqs <path_to_folder>
 
-Examples:
-
-poetry run genreqs .
-poetry run genreqs C:\Users\samle\source\repos\my_project
 
 To skip `poetry run`, you can activate the Poetry shell:
 
@@ -40,6 +40,7 @@ Or add Poetry’s virtualenv `Scripts` folder to your system PATH for global acces
 
 ## Output
 
+Print:
 Displays a list of detected imports to stdout:
 
 matplotlib  
@@ -47,8 +48,16 @@ numpy
 pandas  
 scikit-learn
 
+Write:
+
+Writes the imports to `requirements.txt` in the specified folder:
+
 You can pipe it to a file manually:
 
 poetry run genreqs . > raw_reqs.txt
 
 Coming soon: `--out` flag, exclusion filters, and integration with your requirements writer.
+
+How to run tests:
+poetry run python -m genreqs_tool.test_cases
+
