@@ -4,7 +4,7 @@ import json
 import argparse
 
 def extract_from_py(filepath):
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(filepath, 'r', encoding='utf-8-sig') as f:
         tree = ast.parse(f.read(), filename=filepath)
     modules = set()
     for node in ast.walk(tree):
