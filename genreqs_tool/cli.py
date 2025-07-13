@@ -1,7 +1,3 @@
-from genreqs_tool.genreqs import find_files_and_extract
-
-# genreqs_tool/cli.py
-
 import argparse
 from genreqs_tool.genreqs import printreqs, genreqs
 
