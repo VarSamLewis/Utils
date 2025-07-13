@@ -36,6 +36,7 @@ def extract_from_ipynb(filepath):
                 continue  # Skip malformed cells
     return modules
 
+
 def find_files_and_extract(folder):
     all_modules = set()
     for root, _, files in os.walk(folder):
@@ -49,6 +50,28 @@ def find_files_and_extract(folder):
             except Exception as e:
                 print(f"Error processing {path}: {e}")
     return sorted(all_modules)
+
+""" Untested code I wrote directly on Github do not trust until verified"""
+def printreqs(folder):
+
+    modules = find_files_and_extract(folder)
+    print("\n".join(modules))
+
+def genreqs(folder):
+    req_path = os.path.join(folder, "requirements.txt")
+    
+    if os.path.exists(req_path):
+        print("requirements.txt already exists")
+        return
+
+    reqs = find_files_and_extract(folder)
+    try:
+        with open(req_path, 'w', encoding='utf-8') as f:
+            for req in reqs:
+                f.write(req + "\n")
+        print(f"requirements.txt created at {req_path}")
+    except Exception as e:
+        print(f"Error writing requirements.txt: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Extract top-level imports from .py and .ipynb files")
