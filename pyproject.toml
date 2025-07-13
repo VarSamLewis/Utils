@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "genreqs-tool"
+version = "1.0.0"
+description = "Lightweight CLI for scraping top-level imports from Python & Jupyter files."
+authors = ["VarSamLewis <samlewis1999.sl@gmail.com>"]
+license = "MIT"
+
+[[tool.poetry.packages]]
+include = "genreqs_tool" 
+
+
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+typer = "*"
+
+[tool.poetry.scripts]
+genreqs = "genreqs_tool.cli:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
