@@ -15,7 +15,8 @@ python = ">=3.11"
 typer = "*"
 
 [tool.poetry.scripts]
-genreqs = "genreqs_tool.cli:main"
+genreqs = "genreqs_tool.cli:run_genreqs"
+printreqs = "printreqs_tool.cli:run_printreqs"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
