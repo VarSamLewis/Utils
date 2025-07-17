@@ -30,6 +30,8 @@ poetry run printreqs <path_to_folder>
 Write:
 poetry run genreqs <path_to_folder>
 
+Add a --Debug flag to see debug info
+
 
 To skip `poetry run`, you can activate the Poetry shell:
 
