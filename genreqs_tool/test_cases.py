@@ -1,85 +1,86 @@
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 import json
+import tempfile
+import shutil
 from pathlib import Path
+from io import StringIO
 
 from genreqs_tool.genreqs import (
     extract_from_py,
     extract_from_ipynb,
     find_files_and_extract,
-    genreqs
+    genreqs,
+    printreqs,
+    check_module_against_stdlib
 )
 
 class TestImportExtraction(unittest.TestCase):
 
+    def setUp(self):
+        self.temp_dir = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.temp_dir)
+
     def test_extract_from_py(self):
-        fake_code = "import os\nimport pandas as pd\nfrom math import sqrt"
-        with patch("pathlib.Path.open", mock_open(read_data=fake_code)):
-            result = extract_from_py(Path("fake/path/script.py"))
+        py_file = self.temp_dir / "script.py"
+        py_file.write_text("import os\nimport pandas as pd\nfrom math import sqrt")
+        result = extract_from_py(py_file)
         self.assertEqual(set(result), {"os", "pandas", "math"})
 
     def test_extract_from_ipynb(self):
+        ipynb_file = self.temp_dir / "notebook.ipynb"
         notebook = {
             "cells": [
                 {"cell_type": "code", "source": ["import json\nfrom sklearn import svm"]},
                 {"cell_type": "code", "source": ["import os"]}
             ]
         }
-        fake_json = json.dumps(notebook)
-        with patch("pathlib.Path.open", mock_open(read_data=fake_json)):
-            result = extract_from_ipynb(Path("fake/notebook.ipynb"))
+        ipynb_file.write_text(json.dumps(notebook))
+        result = extract_from_ipynb(ipynb_file)
         self.assertEqual(set(result), {"json", "sklearn", "os"})
 
     def test_find_files_and_extract(self):
-        py_code = "import numpy\nfrom datetime import datetime"
-        ipynb_content = {
+        py_file = self.temp_dir / "script.py"
+        py_file.write_text("import numpy\nfrom datetime import datetime")
+
+        ipynb_file = self.temp_dir / "notebook.ipynb"
+        notebook = {
             "cells": [{"cell_type": "code", "source": ["import os\nimport sys"]}]
         }
+        ipynb_file.write_text(json.dumps(notebook))
 
-        # Create fake .py and .ipynb paths
-        fake_py = Path("some/folder/script.py")
-        fake_ipynb = Path("some/folder/notebook.ipynb")
-
-        def fake_rglob(_):
-            return [fake_py, fake_ipynb]
-
-        with patch("pathlib.Path.rglob", side_effect=fake_rglob), \
-             patch("pathlib.Path.open", mock_open()) as m_open:
-            # side_effect to return content for each file
-            m_open.side_effect = [
-                mock_open(read_data=py_code).return_value,
-                mock_open(read_data=json.dumps(ipynb_content)).return_value
-            ]
-            result = find_files_and_extract("some/folder")
+        result = find_files_and_extract(self.temp_dir)
         self.assertCountEqual(result, ["numpy", "datetime", "os", "sys"])
 
-    @patch("genreqs_tool.genreqs.find_files_and_extract", return_value=["requests"])
-    @patch("pathlib.Path.exists", return_value=False)
-    @patch("pathlib.Path.open", new_callable=mock_open)
-    @patch("builtins.print")  # optional: suppress or check print output
-    def test_genreqs_creates_file(self, mock_print, mock_open_func, mock_exists, mock_find):
-        # Act
-        genreqs("fake_root")
+    def test_genreqs_creates_file(self):
+        py_file = self.temp_dir / "script.py"
+        py_file.write_text("import requests\nimport os")
 
-        # Assert the file was opened correctly
-        mock_open_func.assert_called_once_with("w", encoding="utf-8")
+        genreqs(self.temp_dir)
+        req_file = self.temp_dir / "requirements.txt"
+        self.assertTrue(req_file.exists())
 
-        # Assert that 'requests\n' was written to the file
-        mock_open_func().write.assert_called_with("requests\n")
+        content = req_file.read_text().strip().splitlines()
+        self.assertIn("requests", content)
+        self.assertNotIn("os", content)
 
-        # Optional debug print
-        print("WRITE CALLS:", mock_open_func().write.call_args_list)
+    def test_printreqs_outputs_third_party_only(self):
+        py_file = self.temp_dir / "script.py"
+        py_file.write_text("import requests\nimport os")
 
+        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            printreqs(self.temp_dir)
+            output = mock_stdout.getvalue().strip().splitlines()
 
-    def test_genreqs_skips_existing_file(self):
-        with patch("pathlib.Path.exists", return_value=True), \
-             patch("pathlib.Path.unlink"), \
-             patch("genreqs_tool.genreqs.find_files_and_extract", return_value=["os"]), \
-             patch("pathlib.Path.open", mock_open()) as m_open:
-            handle = m_open()
-            handle.write = unittest.mock.Mock()
-            genreqs("fake_folder")
-            handle.write.assert_called_with("os\n")
+        self.assertIn("requests", output)
+        self.assertNotIn("os", output)
+
+    def test_check_module_against_stdlib(self):
+        self.assertTrue(check_module_against_stdlib("os"))
+        self.assertFalse(check_module_against_stdlib("pandas"))
+
 
 if __name__ == "__main__":
     unittest.main()
