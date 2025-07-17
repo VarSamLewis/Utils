@@ -19,9 +19,6 @@ poetry install
 
 ### Usage
 
-```markdown
-## Usage
-
 From the terminal:
 
 Print:
@@ -63,3 +60,30 @@ Coming soon: `--out` flag, exclusion filters, and integration with your requirem
 How to run tests:
 poetry run python -m genreqs_tool.test_cases
 
+# Kairos
+Kairos is a daemon-themed CLI assistant that answers your questions with cryptic wisdom and theatrical flair. Inspired by the 40k universe, Kairos Fateweaver delivers two answers to every question — one true, one false — and leaves you to divine your fate.
+
+## What it does
+Accepts a natural language question via CLI
+
+Sends the question to the OpenAI API with a custom prompt
+
+Returns two helpful answers: one correct, one misleading
+
+Speaks in the voice of Kairos, the Great Oracle of Tzeentch
+
+```bash
+poetry run provide_guidance "What will the weather be tomorrow in Bristol?"
+```
+
+Kairos will respond with two answers, cloaked in mystery and dripping with daemon wisdom.
+Kairos speaks in the third person and uses colourful, cryptic language.
+Both answers are helpful, but only one is true — and Kairos will never tell.
+
+Requirements:
+
+Libaries:
+- `openai` for API interaction
+- `rich` for pretty terminal output
+- `petry` for CLI handling
+- An OpenAI API key set in your environment variables, please see OpenAI documentation for details.

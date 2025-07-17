@@ -8,15 +8,19 @@ license = "MIT"
 [[tool.poetry.packages]]
 include = "genreqs_tool" 
 
-
+[[tool.poetry.packages]]
+include = "Kairos"
 
 [tool.poetry.dependencies]
 python = ">=3.11"
 typer = "*"
+openai = "*"
+rich = "*"
 
 [tool.poetry.scripts]
 genreqs = "genreqs_tool.cli:run_genreqs"
 printreqs = "genreqs_tool.cli:run_printreqs"
+provide_guidance = "Kairos.cli:summon_kairos"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

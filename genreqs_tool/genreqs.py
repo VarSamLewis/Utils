@@ -3,7 +3,23 @@ import ast
 import json
 import argparse
 import logging
+import sys
 
+
+def _stdlib_modules():
+    """Get a set of standard library module names."""
+    return set(sys.stdlib_module_names) if hasattr(sys, 'stdlib_module_names') else set()
+
+
+def check_module_against_stdlib(module_name):
+    """Check if a module is part of the standard library."""
+    stdlib_modules = _stdlib_modules()
+    if module_name in stdlib_modules:
+        logging.debug(f"Module {module_name} is part of the standard library.")
+        return True
+    else:
+        logging.debug(f"Module {module_name} is not part of the standard library.")
+        return False
 
 def extract_from_py(filepath: Path):  
     with filepath.open('r', encoding='utf-8-sig') as f:  
@@ -69,6 +85,7 @@ def find_files_and_extract(folder):
 def printreqs(folder):
     folder = Path(folder)  
     modules = find_files_and_extract(folder)
+    modules = [mod for mod in modules if not check_module_against_stdlib(mod)]
     print("\n".join(modules))
 
 def genreqs(folder):
@@ -80,11 +97,12 @@ def genreqs(folder):
         req_path.unlink() 
         logging.debug(f"Deleted existing requirements.txt at {req_path}")
 
-    reqs = find_files_and_extract(folder)
+    modules = find_files_and_extract(folder)
+    third_party_modules = [mod for mod in modules if not check_module_against_stdlib(mod)]
     try:
         with req_path.open('w', encoding='utf-8') as f:  
-            for req in reqs:
-                f.write(req + "\n")
+            for module in third_party_modules:
+                f.write(module + "\n")
                 logging.debug(f"Written libs to {req_path}")
         print(f"requirements.txt created at {req_path}")
     except Exception as e:
