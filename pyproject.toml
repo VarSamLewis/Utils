@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "genreqs-tool"
+name = "CLI Tools"
 version = "1.0.0"
-description = "Lightweight CLI for scraping top-level imports from Python & Jupyter files."
+description = "Collection of CLI tools, some useful, some not"
 authors = ["VarSamLewis <samlewis1999.sl@gmail.com>"]
 license = "MIT"
 
@@ -10,6 +10,9 @@ include = "genreqs_tool"
 
 [[tool.poetry.packages]]
 include = "Kairos"
+
+[[tool.poetry.packages]]
+include = "CodeAssist"
 
 [tool.poetry.dependencies]
 python = ">=3.11"
@@ -21,6 +24,7 @@ rich = "*"
 genreqs = "genreqs_tool.cli:run_genreqs"
 printreqs = "genreqs_tool.cli:run_printreqs"
 provide_guidance = "Kairos.cli:summon_kairos"
+input_request = "CodeAssist.cli:run_LLMRequest"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
