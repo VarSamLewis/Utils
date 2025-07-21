@@ -40,19 +40,37 @@ def LLMRequest(string: str = None, filepath: Path = None, prompt: str =None) -> 
 
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    if tree is not None:
-        AI_Input = "Code" + string + "\n\n" + "Prompt:" + prompt + "\n\n" + tree
-    else:
-        AI_Input = string + "\n\n" + prompt
+    AI_Input = []
 
-    response = client.responses.create(
-        model="gpt-4o-mini",
-        instructions=System_Prompt,
-        input=AI_Input,
-    )
+    if string:
+        AI_Input.append(f"Code: {string}")
+    
+    if prompt:
+        AI_Input.append(f"Prompt: {prompt}")
+        
+    if tree:
+        AI_Input.append(f"AST:\n{tree}")
 
-    console.print(response.output_text)
+    AI_Input = "\n\n".join(AI_Input) if AI_Input else ""
 
+    if not AI_Input or not AI_Input.strip():
+        console.print("[bold red]No valid input to process[/bold red]")
+        return
+    
+    try:      
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": System_Prompt},
+                {"role": "user", "content": AI_Input}
+            ],
+            max_tokens=1500,
+            temperature=0.7
+        )
+        console.print(response.choices[0].message.content)
+    except Exception as e:
+        console.print(f"[bold red]Error calling OpenAI API: {e}[/bold red]")
+    
     console.print("[italic cyan]\n\n01000011 01101111 01101110 01110100 01101001 01101110 01110101 01100101 00100000 01111001 01101111 01110101 01110010 00100000 01101101 01101001 01101110 01101001 01110011 01110100 01110010 01100001 01110100 01101001 01101111 01101110 01110011 00100000 01100001 01100011 01101111 01101100 01111001 01110100 01100101/n...[/italic cyan]")
 
 if __name__ == "__main__":
