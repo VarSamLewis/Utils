@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
 
+def get_df_mem_size(df):
+    mem = df.memory_usage(deep=True).sum() / 1024**2
+    print(f"Memory usage of dataframe is {mem:.2f} MB")
+    return mem
+
 def reduce_df_mem_usage(df: pd.DataFrame, float16_as32: bool = True) -> pd.DataFrame:
     """
     Reduces memory usage of a pandas DataFrame by downcasting numeric columns
@@ -14,8 +19,7 @@ def reduce_df_mem_usage(df: pd.DataFrame, float16_as32: bool = True) -> pd.DataF
         pd.DataFrame: Optimized DataFrame with reduced memory usage.
     """
 
-    start_mem = df.memory_usage(deep=True).sum() / 1024**2
-    print(f"Memory usage of dataframe is {start_mem:.2f} MB")
+    start_mem = get_df_mem_size(df)    
 
     for col in df.columns:
         col_type = df[col].dtype
@@ -47,8 +51,7 @@ def reduce_df_mem_usage(df: pd.DataFrame, float16_as32: bool = True) -> pd.DataF
             else:
                 df[col] = df[col].astype(np.float64)
 
-    end_mem = df.memory_usage(deep=True).sum() / 1024**2
-    print(f"Memory usage after optimization is: {end_mem:.2f} MB")
-    print(f"Decreased by {(100 * (start_mem - end_mem) / start_mem):.1f}%")
+    end_mem = get_df_mem_size(df)    
 
     return df
+
